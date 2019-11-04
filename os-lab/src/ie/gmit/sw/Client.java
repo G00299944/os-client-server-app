@@ -1,0 +1,110 @@
+package ie.gmit.sw;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.Scanner;
+
+public class Client {
+	
+	// Member Variables
+	private Socket connection;
+	private String message;
+	private Scanner console;
+	private String ip;
+	private int port;
+	private ObjectOutputStream out;
+	private ObjectInputStream in;
+	
+	// Default Constructor
+	public Client() {
+		console = new Scanner(System.in);
+		
+		System.out.println("server ip:");
+		ip = console.nextLine();
+		
+		System.out.println("port: ");
+		port = console.nextInt();
+	}
+	
+	public void clientApp() {
+		try {
+			
+			// 1 - establish server connection 
+			connection = new Socket(ip, port);
+			
+			out = new ObjectOutputStream(connection.getOutputStream());
+			out.flush();
+			
+			in = new ObjectInputStream(connection.getInputStream());
+			System.out.println("client side ready...");
+			
+			// 2 - read first message from server
+			message = (String)in.readObject();
+			System.out.println(message);
+			message = console.next();
+			sendMessage(message);
+			
+			if(message.contentEquals("1")) {
+				message = (String)in.readObject();
+				System.out.println(message);
+				message = console.next();
+				sendMessage(message);
+				
+				message = (String)in.readObject();
+				System.out.println(message);
+				message = console.next();
+				sendMessage(message);
+				
+				message = (String)in.readObject();
+				System.out.println(message);
+				message = console.next();
+				sendMessage(message);
+				
+				message = (String)in.readObject();
+				System.out.println(message);
+			}
+			else if(message.contentEquals("2")) {
+				
+				message = (String)in.readObject();
+				System.out.println(message);
+				message = console.next();
+				sendMessage(message);
+				
+				message = (String)in.readObject();
+				System.out.println(message);
+			}
+			
+			message = (String)in.readObject();
+			System.out.println(message);
+			
+			out.close();
+			in.close();
+			connection.close();
+			
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void sendMessage(String msg) {
+		try {
+			out.writeObject(msg);
+			out.flush();
+			System.out.println("client>" + msg);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}	
+	}
+
+	// Main
+	public static void main(String[] args) {
+		Client temp = new Client();
+		temp.clientApp();
+	}
+}
